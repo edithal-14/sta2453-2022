@@ -56,12 +56,6 @@ The two files listed here:
 storm_data = pd.read_csv("https://raw.githubusercontent.com/nikpocuca/sta2453-2022.github.io/master/StormEvents_locations-ftp_v1.0_d2014_c20180718.csv")
 golden_data = pd.read_csv("https://raw.githubusercontent.com/nikpocuca/sta2453-2022.github.io/master/kaggle_income_clean.csv")
 
-storm_data.info()
-
-golden_data.info()
-
-golden_data.sample(1)
-
 """
 ## Cleaning Data 
 
@@ -84,10 +78,6 @@ clean_golden_data = golden_data[(golden_data.Lat > 20.0) & (golden_data.Lat < 50
 # rich/poor segmentation
 poor_df = clean_golden_data[clean_golden_data.Mean < 25000]
 rich_df = clean_golden_data[clean_golden_data.Mean > 100000]
-
-poor_df.shape
-
-rich_df.shape
 
 """## Calculate Nearest Distance between Points
 
@@ -148,13 +138,13 @@ If we assume mean(x_rich) = mean(X_poor), then we can use the permutation re-sam
 
 # Null hypothesis = mean(X_rich) = mean(X_poor)
 # Alternate hypothesis = mean(X_rich) > mean(X_poor)
-stats.ttest_ind(X_rich, X_poor, alternative="greater")
+stats.ttest_ind(X_rich, X_poor, permutations=500, alternative="greater")
 
 """Accept null *hypothesis*"""
 
 # Null hypothesis = mean(X_rich) = mean(X_poor)
 # Alternate hypothesis = mean(X_rich) < mean(X_poor)
-stats.ttest_ind(X_rich, X_poor, alternative="less", permutations=500, equal_var=False)
+stats.ttest_ind(X_rich, X_poor, permutations=500, alternative="less")
 
 """Reject null hypothesis and accept alternate hypothesis mean(X_rich) < mean(X_poor)
 
