@@ -33,7 +33,7 @@ class FiniteLinearModel(nn.Module):
 
         # define data 
         self.X = data[:,1:]
-        self.X = torch.concat( (self.X, torch.ones(self.n,1)), axis=1)
+        self.X = torch.cat( (self.X, torch.ones(self.n,1)), axis=1)
         self.y = data[:,0]
 
         # first column is y, the rest are covariates. 
@@ -48,7 +48,7 @@ class FiniteLinearModel(nn.Module):
         self.w.requires_grad = True; 
         self.betas.requires_grad = True;
         self.sigmas.requires_grad = True; 
-        self.leading_constants = - 0.5 * torch.Tensor([2.0 * torch.pi]).log()
+        self.leading_constants = - 0.5 * torch.Tensor([2.0 * m.pi]).log()
 
     def compute_weights(self):
         """
@@ -149,7 +149,7 @@ class FiniteLinearModel(nn.Module):
             col: reference column
         """
          
-        plot_df = torch.concat((self.y.unsqueeze(-1), self.X), dim=1)
+        plot_df = torch.cat((self.y.unsqueeze(-1), self.X), dim=1)
         plot_df = pd.DataFrame(plot_df.detach().numpy())
         plot_df = plot_df[[0,col]]
         
@@ -172,7 +172,7 @@ class FiniteLinearModel(nn.Module):
         
         color_plt = sns.color_palette("bright", int(np.max(labs)) + 1)
         
-        plot_df = torch.concat((self.y.unsqueeze(-1), self.X), dim=1)
+        plot_df = torch.cat((self.y.unsqueeze(-1), self.X), dim=1)
         plot_df = pd.DataFrame(plot_df.detach().numpy())
         plot_df = plot_df[[0,col]]
         plot_df['color'] = pd.Series(labs).apply(lambda x: color_plt[x])

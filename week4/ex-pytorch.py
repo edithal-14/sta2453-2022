@@ -46,13 +46,13 @@ if __name__ == "__main__":
 
 
     # performing minimization.
-    x_star = torch.randn(1) + 10
+    x_star = torch.randn(1) - 10
     
     # set gradient tracking. 
     x_star.requires_grad = True 
 
     # number of iterations. 
-    iterations = 3000
+    iterations = 4000
     lr = 1e-2
     xs = torch.zeros(iterations)
 
@@ -73,6 +73,8 @@ if __name__ == "__main__":
 
 
         xs[i] = float(x_star)
+    
+    print(x_star)
 
 
 

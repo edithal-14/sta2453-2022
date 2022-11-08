@@ -13,7 +13,7 @@ def load_french_motor():
     """    
         Loads french motor data.     
     """    
-    df = pd.read_csv("../week3/french_motor.csv")    
+    df = pd.read_csv("week3/french_motor.csv")    
     df = df.iloc[:,1:]    
     return df   
 
@@ -22,11 +22,12 @@ if __name__ == "__main__":
     print("Running")
 
     # define data. 
-    G = 3 
+    G = 2
     #data_s = torch.rand(100,3)
     data_df = load_french_motor()
     data_s = data_df[['y_log','dens']].to_numpy()
     data_s = torch.Tensor(data_s)
+    # standardization
     data_s = (data_s - data_s.mean())/data_s.std()  
     
     # define model. 
@@ -40,4 +41,6 @@ if __name__ == "__main__":
     flm.train(lr=1e-3, max_iterations=1000)
     
     flm.plot(1) 
+    ys = flm.fit(flm.X, flm.betas)
+    flm.plot_colors(1, ys) 
 
