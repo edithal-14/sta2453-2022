@@ -37,6 +37,8 @@ class FiniteLinearModelEM():
         # define parameters
         self.betas = np.random.normal(size=(self.G, self.p))
         self.sigmas = np.abs(np.random.normal(size=(self.G,)))
+        # Model covariate variance using normal distribution
+        self.covariate_sigmas = np.abs(np.random.normal(size=(self.G,)))
         # mixing ratios
         self.w = np.abs(np.random.normal(size=(self.G,)))
         # w's should sum up to one for all i's and a given j
@@ -61,6 +63,10 @@ class FiniteLinearModelEM():
         for g in range(self.G):
             self.sigmas[g] = np.sqrt((
                 self.z[:, g] * np.power((self.y - self.X @ self.betas[g, :].T), 2)
+            ).sum() / self.z[:, g].sum())
+        for g in range(self.G):
+            self.covariate_sigmas[g] = np.sqrt((
+                self.z[:, g] * np.power(self.X[:, 0], 2)
             ).sum() / self.z[:, g].sum())
         # beta_new = (X' * W * X)^-1 * (X' * W * y)
         for g in range(self.G):
@@ -109,10 +115,17 @@ class FiniteLinearModelEM():
             y_hats = (self.betas[g] * self.X).sum(-1)
 
             # compute log of gaussian density
-            term1 = - 0.5 * np.log([2 * np.pi])
-            term2 = - np.log(self.sigmas[g])
-            term3 = - 0.5 * np.power(((y_hats - self.y) / self.sigmas[g]), 2)
-            ldens[:, g] = term1 + term2 + term3
+            ldens[:, g] = - 0.5 * np.log([2 * np.pi])
+            ldens[:, g] += - np.log(self.sigmas[g])
+            ldens[:, g] += - 0.5 * np.power(((y_hats - self.y) / self.sigmas[g]), 2)
+
+            # Modelling covariate variance using normal distribution
+            ldens[:, g] += - 0.5 * np.log([2 * np.pi])
+            ldens[:, g] += - np.log(self.sigmas[g])
+            # The second column is just ones, so ignore that
+            ldens[:, g] += - 0.5 * np.power(
+                self.X[:, 0] / self.covariate_sigmas[g], 2
+            )
         
         return ldens
 
@@ -142,7 +155,10 @@ class FiniteLinearModelEM():
 
     def BIC(self) -> float:
         """Return Bayesian Information criteria"""
-        rho = self.betas.numel() + self.sigmas.numel() + self.w.numel()
+        rho = (
+            self.z.size + self.betas.size + self.sigmas.size
+            + self.w.size + self.covariate_sigmas.size
+        )
         bic =  -2 * self.objective_function() - rho * np.log(self.y.shape[0])
         return float(bic)
 
@@ -203,5 +219,6 @@ if __name__ == "__main__":
     flm = FiniteLinearModelEM(G=G, data=data_s)
 
     # Run EM algo for 10 iterations, then plot colors
-    flm.fit(max_iter=10)
+    flm.fit(max_iter=30)
+    print(f"BIC: {flm.BIC()}")
     flm.plot()
