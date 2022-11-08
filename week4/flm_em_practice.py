@@ -202,6 +202,6 @@ if __name__ == "__main__":
 
     flm = FiniteLinearModelEM(G=G, data=data_s)
 
-    # Run EM algo for 1000 iterations, then plot colors
+    # Run EM algo for 10 iterations, then plot colors
     flm.fit(max_iter=10)
     flm.plot()
