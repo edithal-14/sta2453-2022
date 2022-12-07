@@ -141,6 +141,14 @@ sns.pairplot(df_transform)
 # ### Imputation before transformation
 
 # %%
+df = pd.read_csv("st4.csv")
+df = df.iloc[1:,:]
+df = df.iloc[:, 1:]
+
+# %%
+df.sample(10)
+
+# %%
 na_mask = df.isna().any(axis=1)
 df_na = df.loc[na_mask,:].copy()
 na_mask = df_na.isna().all(axis=1)
@@ -178,12 +186,28 @@ df_imputed.columns = df_na.columns
 # ### Imputation scatterplot before transformation, blue points are imputed
 
 # %%
+df_clean["is_imputed"] = 0
+df_imputed["is_imputed"] = 1
+
+# %%
+df_new = pd.concat([df_clean, df_imputed])
+
+# %%
+sns.pairplot(df_new, hue="is_imputed")
+
+# %%
 ax1 = plot_li_vs_others(df_clean)
 plot_imputed_values(df_imputed, ax1, colors="blue")
 plt.show()
 
 # %% [markdown]
 # ### Data cleaning and imputation after transformation
+
+# %%
+transformer = PowerTransformer(method="box-cox")
+df_transform = transformer.fit_transform(df)
+df_transform = pd.DataFrame(df_transform)
+df_transform.columns = df.columns
 
 # %%
 na_mask = df_transform.isna().any(axis=1)
@@ -230,8 +254,18 @@ df_inverse_transform_na = transformer.inverse_transform(df_imputed)
 df_inverse_transform_na = pd.DataFrame(df_inverse_transform_na)
 df_inverse_transform_na.columns = df_imputed.columns
 
+# %%
+df_inverse_transform_clean["is_imputed"] = 0
+df_inverse_transform_na["is_imputed"] = 1
+
+# %%
+new_df = pd.concat([df_inverse_transform_clean, df_inverse_transform_na])
+
 # %% [markdown]
 # ### Imputation scatterplot after transformation, red points are imputed
+
+# %%
+sns.pairplot(new_df, hue="is_imputed")
 
 # %%
 ax1 = plot_li_vs_others(df_inverse_transform_clean)
@@ -474,8 +508,16 @@ x_imputed_array_inv_transform = best_model.inverse_transform(torch.Tensor(x_impu
 df_imputed = pd.DataFrame(x_imputed_array_inv_transform)
 df_imputed.columns = df_transform_na.columns
 
+# %%
+df_clean["is_imputed"] = 0
+df_imputed["is_imputed"] = 1
+new_df = pd.concat([df_clean, df_imputed])
+
 # %% [markdown]
 # ### Imputation after joint training using EM, brown points are imputed
+
+# %%
+sns.pairplot(new_df, hue="is_imputed")
 
 # %%
 ax1 = plot_li_vs_others(df_clean)
